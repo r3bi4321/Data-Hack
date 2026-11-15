@@ -18,12 +18,14 @@ if any(path is None or path.strip() == "" for path in data_paths):
         "One or more data paths are missing in the .env file."
     )
 
-
 dataframes = []
 
 for i, path in enumerate(data_paths, start=1):
 
-    file_path = Path(path)
+    file_path = Path(path.strip())
+
+    if not file_path.is_absolute():
+        file_path = base / file_path
 
     if not file_path.exists():
         raise FileNotFoundError(
@@ -44,13 +46,12 @@ for i in range(1, 13):
     jersey_column = f"StartPlayerJersey{i}"
 
     if name_column in df.columns:
-
         df[jersey_column] = (
             df[name_column]
+            .astype("string")
             .str.extract(r"#(\d+)", expand=False)
         )
 
 print("\n========== DATENÜBERSICHT ==========")
 print("Zeilen:", len(df))
 print("Spalten:", len(df.columns))
-
